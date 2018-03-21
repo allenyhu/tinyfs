@@ -34,6 +34,7 @@ public class ChunkServer implements ChunkServerInterface {
 //		System.out.println("createChunk invoked:  Part 1 of TinyFS must implement the body of this method.");
 //		System.out.println("Returns null for now.\n");
 		File chunk = new File(filePath + counter);
+		counter++;
 		return chunk.getPath();
 	}
 
