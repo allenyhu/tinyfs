@@ -59,9 +59,17 @@ public class ChunkServer implements ChunkServerInterface {
 	 * read the chunk at the specific offset
 	 */
 	public byte[] getChunk(String ChunkHandle, int offset, int NumberOfBytes) {
-		System.out.println("readChunk invoked:  Part 1 of TinyFS must implement the body of this method.");
-		System.out.println("Returns null for now.\n");
-		return null;
+		byte[] result = new byte[NumberOfBytes];
+		try {
+		    RandomAccessFile reader = new RandomAccessFile(ChunkHandle, "r");
+		    reader.read(result, offset, NumberOfBytes);
+		    reader.close();
+		} catch (IOException ioe) {
+			System.out.println("Failed getChunk");
+			System.out.println("error: " + ioe.getMessage());
+			return null;
+		}
+	    return result;
 	}
 
 }
