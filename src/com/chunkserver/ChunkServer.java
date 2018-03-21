@@ -1,6 +1,10 @@
 package com.chunkserver;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -14,7 +18,7 @@ import com.interfaces.ChunkServerInterface;
  */
 
 public class ChunkServer implements ChunkServerInterface {
-	final static String filePath = "U:\\Desktop\\csci485Disk\\"; // or C:\\newfile.txt
+	final static String filePath = "U:\\Desktop\\allenyhu_csci485Disk\\"; // or C:\\newfile.txt
 	public static long counter;
 
 	/**
@@ -24,14 +28,28 @@ public class ChunkServer implements ChunkServerInterface {
 		//System.out.println(
 		//		"Constructor of ChunkServer is invoked:  Part 1 of TinyFS must implement the body of this method.");
 		File dir = new File(filePath);
-		if(!dir.exists()) { //directory doesn't exist
-			try {
+		counter = -1;
+		try {
+			if(!dir.exists()) { //directory doesn't exist
 				dir.mkdir();
-			} catch (Exception ioe) {
-				System.out.println("error: " + ioe.getMessage());
+				counter = 0;
+				FileWriter writer = new FileWriter(filePath + "counter.txt");
+				BufferedWriter bwriter = new BufferedWriter(writer);
+				bwriter.write(Long.toString(counter));
+				bwriter.close();
+				writer.close();
+			} else { //directory already exists
+				FileReader fr = new FileReader(filePath + "counter.txt");
+				BufferedReader br = new BufferedReader(fr);
+				counter = Long.valueOf(br.readLine());
+				br.close();
+				fr.close();
 			}
+		} catch (Exception ioe) {
+			System.out.println("error in chunkserver const");
+			System.out.println("error: " + ioe.getMessage());
 		}
-		counter = 0;
+		
 	}
 
 	/**
@@ -43,6 +61,15 @@ public class ChunkServer implements ChunkServerInterface {
 //		System.out.println("Returns null for now.\n");
 		File chunk = new File(filePath + counter);
 		counter++;
+		try {
+			FileWriter writer = new FileWriter(filePath + "counter.txt");
+			BufferedWriter bwriter = new BufferedWriter(writer);
+			bwriter.write(Long.toString(counter));
+			bwriter.close();
+			writer.close();
+		} catch (IOException ioe) {
+			System.out.print("ioe in initializeChunk: " + ioe.getMessage());
+		}
 		return chunk.getPath();
 	}
 
