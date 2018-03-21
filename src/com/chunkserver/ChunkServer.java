@@ -23,6 +23,14 @@ public class ChunkServer implements ChunkServerInterface {
 	public ChunkServer() {
 		//System.out.println(
 		//		"Constructor of ChunkServer is invoked:  Part 1 of TinyFS must implement the body of this method.");
+		File dir = new File(filePath);
+		if(!dir.exists()) { //directory doesn't exist
+			try {
+				dir.mkdir();
+			} catch (Exception ioe) {
+				System.out.println("error: " + ioe.getMessage());
+			}
+		}
 		counter = 0;
 	}
 
