@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.ServerSocket;
+import java.util.Scanner;
 
 import com.interfaces.ChunkServerInterface;
 
@@ -20,13 +22,13 @@ import com.interfaces.ChunkServerInterface;
 public class ChunkServer implements ChunkServerInterface {
 	final static String filePath = "U:\\Desktop\\allenyhu_csci485Disk\\"; // or C:\\newfile.txt
 	public static long counter;
-
+	private ServerSocket ss;
 	/**
 	 * Initialize the chunk server
 	 */
-	public ChunkServer() {
-		//System.out.println(
-		//		"Constructor of ChunkServer is invoked:  Part 1 of TinyFS must implement the body of this method.");
+	public ChunkServer(int port) {
+		this.ss = new ServerSocket(port);
+		
 		File dir = new File(filePath);
 		counter = -1;
 		try {
@@ -48,6 +50,14 @@ public class ChunkServer implements ChunkServerInterface {
 		} catch (Exception ioe) {
 			System.out.println("error in chunkserver const");
 			System.out.println("error: " + ioe.getMessage());
+		}
+		
+		while(true) {
+			try {
+				ss.accept();
+			} catch (IOException ioe) {
+				System.out.println("ss ioe: " + ioe.getMessage());
+			}
 		}
 		
 	}
@@ -106,6 +116,13 @@ public class ChunkServer implements ChunkServerInterface {
 			return null;
 		}
 	    return result;
+	}
+	
+	public static void main(String[] args) {
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Please enter a port number: ");
+		int port = scan.nextInt();
+		ChunkServer server = new ChunkServer(port);
 	}
 
 }
