@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Arrays;
-//import java.util.Arrays;
-import java.util.Scanner;
 
 import com.interfaces.ChunkServerInterface;
 
@@ -20,6 +19,7 @@ public class ChunkServer implements ChunkServerInterface {
 	final static String filePath = "csci485/";	//or C:\\newfile.txt
 	public static long counter;
 	private ServerSocket ss = null;
+	private Socket client = null;
 	
 	/**
 	 * Initialize the chunk server
@@ -42,7 +42,7 @@ public class ChunkServer implements ChunkServerInterface {
 		while(ss == null) {
 			try {
 				ss = new ServerSocket(port);
-				System.out.println("Chunkserver opened on port: " + port);
+				System.out.println("Chunkserver opened on port: " + ss.getLocalPort());
 			} catch(IOException ioe) {
 				System.out.println("server socket ioe: " + ioe.getMessage());
 				port++;
@@ -50,9 +50,13 @@ public class ChunkServer implements ChunkServerInterface {
 			} 
 		}
 		try {
-			while(true) {
-				ss.accept();
-			}
+			client = ss.accept();
+//			 while ((inputLine = in.readLine()) != null) {
+//			        outputLine = kkp.processInput(inputLine);
+//			        out.println(outputLine);
+//			        if (outputLine.equals("Bye."))
+//			            break;
+//			    }
 		} catch(IOException ioe) {
 			System.out.println("server on port: " + port + " accept ioe: " + ioe.getMessage());
 		}

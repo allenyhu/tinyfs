@@ -13,14 +13,14 @@ import com.interfaces.ClientInterface;
  *
  */
 public class Client implements ClientInterface {
-	public static ChunkServer cs = new ChunkServer();
+	//public static ChunkServer cs = new ChunkServer();
 	private Socket sock;
 	/**
 	 * Initialize the client
 	 */
 	public Client(){
-		if (cs == null)
-			cs = new ChunkServer();
+//		if (cs == null)
+//			cs = new ChunkServer();
 		
 		Scanner scan = new Scanner(System.in);
 		System.out.print("Please enter the port to connect to: " );
@@ -39,7 +39,7 @@ public class Client implements ClientInterface {
 	 * Create a chunk at the chunk server from the client side.
 	 */
 	public String initializeChunk() {
-		return cs.initializeChunk();
+		//return cs.initializeChunk();
 	}
 	
 	/**
@@ -50,7 +50,7 @@ public class Client implements ClientInterface {
 			System.out.println("The chunk write should be within the range of the file, invalide chunk write!");
 			return false;
 		}
-		return cs.putChunk(ChunkHandle, payload, offset);
+		//return cs.putChunk(ChunkHandle, payload, offset);
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class Client implements ClientInterface {
 			System.out.println("The chunk read should be within the range of the file, invalide chunk read!");
 			return null;
 		}
-		return cs.getChunk(ChunkHandle, offset, NumberOfBytes);
+		//return cs.getChunk(ChunkHandle, offset, NumberOfBytes);
 	}
 
 	
