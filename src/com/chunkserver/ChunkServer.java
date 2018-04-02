@@ -19,12 +19,12 @@ import com.interfaces.ChunkServerInterface;
 public class ChunkServer implements ChunkServerInterface {
 	final static String filePath = "csci485/";	//or C:\\newfile.txt
 	public static long counter;
-	private ServerSocket ss;
+	private ServerSocket ss = null;
 	
 	/**
 	 * Initialize the chunk server
 	 */
-	public ChunkServer(int port){
+	public ChunkServer(){
 		File dir = new File(filePath);
 		File[] fs = dir.listFiles();
 
@@ -38,15 +38,24 @@ public class ChunkServer implements ChunkServerInterface {
 			Arrays.sort(cntrs);
 			counter = cntrs[cntrs.length - 1];
 		}
+		int port = 6789;
+		while(ss == null) {
+			try {
+				ss = new ServerSocket(port);
+				System.out.println("Chunkserver opened on port: " + port);
+			} catch(IOException ioe) {
+				System.out.println("server socket ioe: " + ioe.getMessage());
+				port++;
+				//System.out.println("trying on port: " + port);
+			} 
+		}
 		try {
-			ss = new ServerSocket(port);
-			System.out.println("SS opened on port: " + port);
 			while(true) {
 				ss.accept();
 			}
-		} catch (IOException ioe) {
-			System.out.println("server socket ioe: " + ioe.getMessage());
-		} 
+		} catch(IOException ioe) {
+			System.out.println("server on port: " + port + " accept ioe: " + ioe.getMessage());
+		}
 		
 	}
 	
@@ -100,11 +109,7 @@ public class ChunkServer implements ChunkServerInterface {
 	}
 	
 	public static void main(String[] args) {
-		Scanner scan = new Scanner(System.in);
-		System.out.print("Please enter a port number to run the server: ");
-		int port = scan.nextInt();
-		ChunkServer server = new ChunkServer(port);
-		System.out.println("ChunkServer started");
+		ChunkServer server = new ChunkServer();
 	}
 	
 	
