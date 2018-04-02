@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.util.Arrays;
 //import java.util.Arrays;
+import java.util.Scanner;
 
 import com.interfaces.ChunkServerInterface;
 
@@ -39,6 +40,7 @@ public class ChunkServer implements ChunkServerInterface {
 		}
 		try {
 			ss = new ServerSocket(port);
+			System.out.println("SS opened on port: " + port);
 			while(true) {
 				ss.accept();
 			}
@@ -97,8 +99,12 @@ public class ChunkServer implements ChunkServerInterface {
 		}
 	}
 	
-	public static void maint(String[] args) {
-		
+	public static void main(String[] args) {
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Please enter a port number to run the server: ");
+		int port = scan.nextInt();
+		ChunkServer server = new ChunkServer(port);
+		System.out.println("ChunkServer started");
 	}
 	
 	
