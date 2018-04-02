@@ -69,6 +69,7 @@ public class ChunkServer implements ChunkServerInterface {
 	 */
 	public String initializeChunk() {
 		counter++;
+		//send this across the connection
 		return String.valueOf(counter);
 	}
 	
