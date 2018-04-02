@@ -1,5 +1,9 @@
 package com.client;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+
 import com.chunkserver.ChunkServer;
 import com.interfaces.ClientInterface;
 
@@ -10,13 +14,25 @@ import com.interfaces.ClientInterface;
  */
 public class Client implements ClientInterface {
 	public static ChunkServer cs = new ChunkServer();
-	
+	private Socket sock;
 	/**
 	 * Initialize the client
 	 */
 	public Client(){
 		if (cs == null)
 			cs = new ChunkServer();
+		
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Please enter the port to connect to: " );
+		int port = scan.nextInt();
+		try {
+			this.sock = new Socket("localhost", port);
+			System.out.println("Client connected on port: " + port);
+		} catch(IOException ioe) {
+			System.out.println("client on port " + port + " ioe: " + ioe.getMessage());
+		}
+		
+		scan.close();
 	}
 	
 	/**
