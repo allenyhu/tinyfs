@@ -1,6 +1,11 @@
 package com.client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -15,6 +20,8 @@ import com.interfaces.ClientInterface;
 public class Client implements ClientInterface {
 	//public static ChunkServer cs = new ChunkServer();
 	private Socket sock;
+	private OutputStream ostream;
+	private InputStream istream;
 	/**
 	 * Initialize the client
 	 */
@@ -27,6 +34,8 @@ public class Client implements ClientInterface {
 		int port = scan.nextInt();
 		try {
 			this.sock = new Socket("localhost", port);
+			this.ostream = sock.getOutputStream();
+			this.istream = sock.getInputStream();
 			System.out.println("Client connected on port: " + port);
 		} catch(IOException ioe) {
 			System.out.println("client on port " + port + " ioe: " + ioe.getMessage());
@@ -40,6 +49,15 @@ public class Client implements ClientInterface {
 	 */
 	public String initializeChunk() {
 		//return cs.initializeChunk();
+		try {
+			PrintWriter pw = new PrintWriter(this.ostream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			pw.print("init");
+			pw.flush();
+			return br.readLine();
+		} catch(IOException ioe) {
+			return null;
+		}
 	}
 	
 	/**

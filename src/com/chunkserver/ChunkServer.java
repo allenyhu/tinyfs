@@ -50,13 +50,17 @@ public class ChunkServer implements ChunkServerInterface {
 			} 
 		}
 		try {
-			client = ss.accept();
-//			 while ((inputLine = in.readLine()) != null) {
-//			        outputLine = kkp.processInput(inputLine);
-//			        out.println(outputLine);
-//			        if (outputLine.equals("Bye."))
-//			            break;
+			while(true) {
+				client = ss.accept();
+//				 while ((inputLine = in.readLine()) != null) {
+//				        outputLine = kkp.processInput(inputLine);
+//				        out.println(outputLine);
+//				        if (outputLine.equals("Bye."))
+//				            break;
 //			    }
+				String message = 
+				if()
+			}
 		} catch(IOException ioe) {
 			System.out.println("server on port: " + port + " accept ioe: " + ioe.getMessage());
 		}
