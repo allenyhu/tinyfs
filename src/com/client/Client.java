@@ -2,9 +2,9 @@ package com.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
@@ -20,27 +20,24 @@ import com.interfaces.ClientInterface;
 public class Client implements ClientInterface {
 	//public static ChunkServer cs = new ChunkServer();
 	private Socket sock;
-	private OutputStream ostream;
-	private InputStream istream;
+	private ObjectOutputStream ostream;
+	private ObjectInputStream istream;
 	/**
 	 * Initialize the client
 	 */
 	public Client(){
-//		if (cs == null)
-//			cs = new ChunkServer();
-		
 		Scanner scan = new Scanner(System.in);
 		System.out.print("Please enter the port to connect to: " );
 		int port = scan.nextInt();
 		try {
 			this.sock = new Socket("localhost", port);
-			this.ostream = sock.getOutputStream();
-			this.istream = sock.getInputStream();
+			this.ostream = new ObjectOutputStream(sock.getOutputStream());
+			this.istream = new ObjectInputStream(sock.getInputStream());
+			
 			System.out.println("Client connected on port: " + port);
 		} catch(IOException ioe) {
 			System.out.println("client on port " + port + " ioe: " + ioe.getMessage());
 		}
-		
 		scan.close();
 	}
 	
@@ -48,15 +45,19 @@ public class Client implements ClientInterface {
 	 * Create a chunk at the chunk server from the client side.
 	 */
 	public String initializeChunk() {
-		//return cs.initializeChunk();
 		System.out.println("client initchunk");
 		try {
-			PrintWriter pw = new PrintWriter(this.ostream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			pw.print("init\n");
-			pw.flush();
+			ostream.writeInt(ChunkServer.INIT);
+			ostream.flush(); //sends init command
 			System.out.println("client flushed");
-			return br.readLine();
+			
+			int size = istream.readInt();
+			byte[] data = new byte[size];
+			int count = 0;
+			do {
+				count += istream.read(data, count, size-count);
+			} while(count != size);
+			return new String(data);
 		} catch(IOException ioe) {
 			return null;
 		}

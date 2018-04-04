@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
@@ -21,8 +23,15 @@ import com.interfaces.ChunkServerInterface;
 public class ChunkServer implements ChunkServerInterface {
 	final static String filePath = "csci485/";	//or C:\\newfile.txt
 	public static long counter;
+	public static int INIT = 0;
+	public static int PUT = 1;
+	public static int GET = 2;
+	public static int CMDBYTESIZE = 4;
+	
 	private ServerSocket ss = null;
 	private Socket client = null;
+	private ObjectInputStream istream;
+	private ObjectOutputStream ostream;
 	
 	/**
 	 * Initialize the chunk server
@@ -56,6 +65,8 @@ public class ChunkServer implements ChunkServerInterface {
 			while(true) {
 				if(client == null) {
 					client = ss.accept();
+					this.ostream = new ObjectOutputStream(client.getOutputStream());
+					this.istream = new ObjectInputStream(client.getInputStream());
 					System.out.println("client accepted");
 				}
 //				 while ((inputLine = in.readLine()) != null) {
@@ -64,15 +75,15 @@ public class ChunkServer implements ChunkServerInterface {
 //				        if (outputLine.equals("Bye."))
 //				            break;
 //			    }
-				PrintWriter pw = new PrintWriter(client.getOutputStream());
-				BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-				System.out.println("check");
-				String message = br.readLine();
-				System.out.println("message: " + message);
-				if(message.equals("init")) {
+				int command = istream.readInt();
+				System.out.println("command: " + command);
+				if(command == ChunkServer.INIT) {
 					System.out.println("got init message");
-					pw.write(this.initializeChunk()+"\n");
-					pw.flush();
+					String handle = this.initializeChunk();
+					byte[] handleBytes = handle.getBytes();
+					ostream.writeObject(handleBytes.length);
+					ostream.write(handleBytes);
+					ostream.flush();
 				}
 			}
 		} catch(IOException ioe) {
