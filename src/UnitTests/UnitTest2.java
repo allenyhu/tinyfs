@@ -21,7 +21,7 @@ public class UnitTest2 {
 		UnitTest1 ut1 = new UnitTest1();
 		ut1.test1();
 		Client client = new Client();
-		String handle = ut1.handle;
+		String handle = ut1.handle; //static client socket check if not null and just return
 		byte[] ValInBytes = ByteBuffer.allocate(4).putInt(1).array();
 		byte[] data = new byte[ChunkServer.ChunkSize];
         data = client.getChunk(handle, 0, ChunkServer.ChunkSize);

@@ -45,6 +45,7 @@ public class Client implements ClientInterface {
 	 * Create a chunk at the chunk server from the client side.
 	 */
 	public String initializeChunk() {
+		//read port number from file
 		System.out.println("client initchunk");
 		try {
 			ostream.writeInt(ChunkServer.INIT);
@@ -57,7 +58,10 @@ public class Client implements ClientInterface {
 			do {
 				count += istream.read(data, count, size-count);
 			} while(count != size);
-			return new String(data);
+			//byte[] data = ChunkServer.readBytes(istream, size);
+			String handle = new String(data);
+			System.out.println("handle from server: " + handle);
+			return handle;
 		} catch(IOException ioe) {
 			return null;
 		}
@@ -71,8 +75,30 @@ public class Client implements ClientInterface {
 			System.out.println("The chunk write should be within the range of the file, invalide chunk write!");
 			return false;
 		}
-		//return cs.putChunk(ChunkHandle, payload, offset);
+		//command
+		//offset
+		//payload size
+		//payload
+		//handle size
+		//handle
+		try {
+			ostream.writeInt(ChunkServer.PUT);
+			ostream.writeInt(offset);
+			ostream.writeInt(payload.length);
+			System.out.println("payload size client: " + payload.length);
+			ostream.write(payload);
+			ostream.writeInt(ChunkHandle.getBytes().length);
+			ostream.write(ChunkHandle.getBytes());
+			ostream.flush();
+			
+			boolean success = istream.readBoolean();
+			System.out.println("client read boolean");
+			return success;
+		} catch (IOException ioe) {
+			System.out.println("Client putChunk ioe: " + ioe.getMessage());
+		}
 		return false;
+		
 	}
 	
 	/**

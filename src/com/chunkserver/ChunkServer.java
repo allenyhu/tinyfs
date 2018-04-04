@@ -80,9 +80,28 @@ public class ChunkServer implements ChunkServerInterface {
 				if(command == ChunkServer.INIT) {
 					System.out.println("got init message");
 					String handle = this.initializeChunk();
+					System.out.println("handle to be sent: " + handle);
 					byte[] handleBytes = handle.getBytes();
-					ostream.writeObject(handleBytes.length);
+					ostream.writeInt(handleBytes.length);
 					ostream.write(handleBytes);
+					ostream.flush();
+				}
+				else if(command == ChunkServer.PUT) {
+					System.out.println("got put message");
+					
+					int offset = istream.readInt();
+					int payloadSize = istream.readInt();
+					byte[] payload = this.readBytes(this.istream, payloadSize);
+					System.out.println("read payload");
+					int handleSize = istream.readInt();
+					System.out.println("read handlesize");
+					byte[] handleBytes = this.readBytes(this.istream, handleSize);
+					System.out.println("read handle");
+					String handle = new String(handleBytes);
+
+					boolean put = this.putChunk(handle, payload, offset);
+					System.out.println("got boolean server");
+					ostream.writeBoolean(put);
 					ostream.flush();
 				}
 			}
@@ -90,6 +109,22 @@ public class ChunkServer implements ChunkServerInterface {
 			System.out.println("server on port: " + port + " accept ioe: " + ioe.getMessage());
 		}
 		
+	}
+	
+	public static byte[] readBytes(ObjectInputStream ois, int size) {
+		System.out.println("Server payload size: " + size);
+		byte[] data = new byte[size];
+		int count = 0;
+		try {
+			do {
+				count += ois.read(data, count, size-count);
+			} while(count != size);
+		} catch (IOException ioe) {
+			System.out.println("readBytes ioe: " + ioe.getMessage());
+			return null;
+		}
+		System.out.println("count: " + count);
+		return data;
 	}
 	
 	/**
@@ -108,6 +143,7 @@ public class ChunkServer implements ChunkServerInterface {
 	 */
 	public boolean putChunk(String ChunkHandle, byte[] payload, int offset) {
 		try {
+			System.out.println("server putChunk");
 			//If the file corresponding to ChunkHandle does not exist then create it before writing into it
 			RandomAccessFile raf = new RandomAccessFile(filePath + ChunkHandle, "rw");
 			raf.seek(offset);

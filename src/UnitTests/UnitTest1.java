@@ -40,7 +40,7 @@ public class UnitTest1 {
         	System.out.println("Unit test 1 result: fail!");
         	return;
         }
-        //System.out.println("past handle");
+        System.out.println("past handle");
         isSuccess = client.putChunk(handle, payload, 0);
         if(isSuccess == true){
         	System.out.println("Unit test 1 result: success!");
