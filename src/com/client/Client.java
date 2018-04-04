@@ -49,11 +49,13 @@ public class Client implements ClientInterface {
 	 */
 	public String initializeChunk() {
 		//return cs.initializeChunk();
+		System.out.println("client initchunk");
 		try {
 			PrintWriter pw = new PrintWriter(this.ostream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			pw.print("init");
+			pw.print("init\n");
 			pw.flush();
+			System.out.println("client flushed");
 			return br.readLine();
 		} catch(IOException ioe) {
 			return null;
@@ -69,6 +71,7 @@ public class Client implements ClientInterface {
 			return false;
 		}
 		//return cs.putChunk(ChunkHandle, payload, offset);
+		return false;
 	}
 	
 	/**
@@ -80,6 +83,7 @@ public class Client implements ClientInterface {
 			return null;
 		}
 		//return cs.getChunk(ChunkHandle, offset, NumberOfBytes);
+		return null;
 	}
 
 	

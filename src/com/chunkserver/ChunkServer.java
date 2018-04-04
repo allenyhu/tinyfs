@@ -1,7 +1,10 @@
 package com.chunkserver;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -51,15 +54,26 @@ public class ChunkServer implements ChunkServerInterface {
 		}
 		try {
 			while(true) {
-				client = ss.accept();
+				if(client == null) {
+					client = ss.accept();
+					System.out.println("client accepted");
+				}
 //				 while ((inputLine = in.readLine()) != null) {
 //				        outputLine = kkp.processInput(inputLine);
 //				        out.println(outputLine);
 //				        if (outputLine.equals("Bye."))
 //				            break;
 //			    }
-				String message = 
-				if()
+				PrintWriter pw = new PrintWriter(client.getOutputStream());
+				BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
+				System.out.println("check");
+				String message = br.readLine();
+				System.out.println("message: " + message);
+				if(message.equals("init")) {
+					System.out.println("got init message");
+					pw.write(this.initializeChunk()+"\n");
+					pw.flush();
+				}
 			}
 		} catch(IOException ioe) {
 			System.out.println("server on port: " + port + " accept ioe: " + ioe.getMessage());
