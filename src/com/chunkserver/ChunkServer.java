@@ -61,54 +61,49 @@ public class ChunkServer implements ChunkServerInterface {
 				//System.out.println("trying on port: " + port);
 			} 
 		}
-		try {
-			while(true) {
-				if(client == null) {
-					client = ss.accept();
-					this.ostream = new ObjectOutputStream(client.getOutputStream());
-					this.istream = new ObjectInputStream(client.getInputStream());
-					System.out.println("client accepted");
-				}
-//				 while ((inputLine = in.readLine()) != null) {
-//				        outputLine = kkp.processInput(inputLine);
-//				        out.println(outputLine);
-//				        if (outputLine.equals("Bye."))
-//				            break;
-//			    }
-				int command = istream.readInt();
-				System.out.println("command: " + command);
-				if(command == ChunkServer.INIT) {
-					System.out.println("got init message");
-					String handle = this.initializeChunk();
-					System.out.println("handle to be sent: " + handle);
-					byte[] handleBytes = handle.getBytes();
-					ostream.writeInt(handleBytes.length);
-					ostream.write(handleBytes);
-					ostream.flush();
-				}
-				else if(command == ChunkServer.PUT) {
-					System.out.println("got put message");
+		while(true) {
+			try {
+				client = ss.accept();
+				this.ostream = new ObjectOutputStream(client.getOutputStream());
+				this.istream = new ObjectInputStream(client.getInputStream());
+				System.out.println("client accepted");
 					
-					int offset = istream.readInt();
-					int payloadSize = istream.readInt();
-					byte[] payload = this.readBytes(this.istream, payloadSize);
-					System.out.println("read payload");
-					int handleSize = istream.readInt();
-					System.out.println("read handlesize");
-					byte[] handleBytes = this.readBytes(this.istream, handleSize);
-					System.out.println("read handle");
-					String handle = new String(handleBytes);
-
-					boolean put = this.putChunk(handle, payload, offset);
-					System.out.println("got boolean server");
-					ostream.writeBoolean(put);
-					ostream.flush();
+				while(true) {
+					int command = istream.readInt();
+					System.out.println("command: " + command);
+					if(command == ChunkServer.INIT) {
+						System.out.println("got init message");
+						String handle = this.initializeChunk();
+						System.out.println("handle to be sent: " + handle);
+						byte[] handleBytes = handle.getBytes();
+						ostream.writeInt(handleBytes.length);
+						ostream.write(handleBytes);
+						ostream.flush();
+					}
+					else if(command == ChunkServer.PUT) {
+						System.out.println("got put message");
+						
+						int offset = istream.readInt();
+						int payloadSize = istream.readInt();
+						byte[] payload = this.readBytes(this.istream, payloadSize);
+						System.out.println("read payload");
+						int handleSize = istream.readInt();
+						System.out.println("read handlesize");
+						byte[] handleBytes = this.readBytes(this.istream, handleSize);
+						System.out.println("read handle");
+						String handle = new String(handleBytes);
+	
+						boolean put = this.putChunk(handle, payload, offset);
+						System.out.println("got boolean server");
+						ostream.writeBoolean(put);
+						ostream.flush();
+					}
 				}
+			} catch(IOException ioe) {
+				System.out.println("server accept ioe: " + ioe.getMessage());
+				
 			}
-		} catch(IOException ioe) {
-			System.out.println("server on port: " + port + " accept ioe: " + ioe.getMessage());
 		}
-		
 	}
 	
 	public static byte[] readBytes(ObjectInputStream ois, int size) {
