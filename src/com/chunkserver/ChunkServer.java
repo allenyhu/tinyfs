@@ -1,12 +1,11 @@
 package com.chunkserver;
 
-import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -54,6 +53,9 @@ public class ChunkServer implements ChunkServerInterface {
 		while(ss == null) {
 			try {
 				ss = new ServerSocket(port);
+				BufferedWriter bw = new BufferedWriter(new FileWriter("port.txt"));
+				bw.write(new Integer(port).toString());
+				bw.flush();
 				System.out.println("Chunkserver opened on port: " + ss.getLocalPort());
 			} catch(IOException ioe) {
 				System.out.println("server socket ioe: " + ioe.getMessage());
@@ -76,9 +78,9 @@ public class ChunkServer implements ChunkServerInterface {
 						String handle = this.initializeChunk();
 						System.out.println("handle to be sent: " + handle);
 						byte[] handleBytes = handle.getBytes();
-						ostream.writeInt(handleBytes.length);
-						ostream.write(handleBytes);
-						ostream.flush();
+						this.ostream.writeInt(handleBytes.length);
+						this.ostream.write(handleBytes);
+						this.ostream.flush();
 					}
 					else if(command == ChunkServer.PUT) {
 						System.out.println("got put message");
@@ -95,8 +97,8 @@ public class ChunkServer implements ChunkServerInterface {
 	
 						boolean put = this.putChunk(handle, payload, offset);
 						System.out.println("got boolean server");
-						ostream.writeBoolean(put);
-						ostream.flush();
+						this.ostream.writeBoolean(put);
+						this.ostream.flush();
 					}
 					else if(command == ChunkServer.GET) {
 						System.out.println("got get message");
@@ -110,9 +112,10 @@ public class ChunkServer implements ChunkServerInterface {
 						byte[] handleBytes = this.readBytes(this.istream, handleSize);
 						String handle = new String(handleBytes);
 						byte[] data = this.getChunk(handle, offset, NumberOfBytes);
-						ostream.writeInt(data.length);
-						ostream.write(data);
-						ostream.flush();
+						
+						this.ostream.writeInt(data.length);
+						this.ostream.write(data);
+						this.ostream.flush();
 					}
 				}
 			} catch(IOException ioe) {
@@ -171,6 +174,7 @@ public class ChunkServer implements ChunkServerInterface {
 	 * read the chunk at the specific offset
 	 */
 	public byte[] getChunk(String ChunkHandle, int offset, int NumberOfBytes) {
+		System.out.println("server getChunk");
 		try {
 			//If the file for the chunk does not exist the return null
 			boolean exists = (new File(filePath + ChunkHandle)).exists();

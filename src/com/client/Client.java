@@ -1,13 +1,12 @@
 package com.client;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 import com.chunkserver.ChunkServer;
 import com.interfaces.ClientInterface;
@@ -18,27 +17,30 @@ import com.interfaces.ClientInterface;
  *
  */
 public class Client implements ClientInterface {
-	//public static ChunkServer cs = new ChunkServer();
-	private Socket sock;
-	private ObjectOutputStream ostream;
-	private ObjectInputStream istream;
+	private static Socket sock = null;
+	private static ObjectOutputStream ostream;
+	private static ObjectInputStream istream;
 	/**
 	 * Initialize the client
 	 */
 	public Client(){
-		Scanner scan = new Scanner(System.in);
-		System.out.print("Please enter the port to connect to: " );
-		int port = scan.nextInt();
+		int port = 0;
 		try {
-			this.sock = new Socket("localhost", port);
-			this.ostream = new ObjectOutputStream(sock.getOutputStream());
-			this.istream = new ObjectInputStream(sock.getInputStream());
+			BufferedReader br = new BufferedReader(new FileReader("port.txt"));
+			port = Integer.parseInt(br.readLine());
+			System.out.println("port read in: " + port);
+			if(this.sock == null) {
+				this.sock = new Socket("localhost", port);
+				this.ostream = new ObjectOutputStream(sock.getOutputStream());
+				this.istream = new ObjectInputStream(sock.getInputStream());
+			}
 			
 			System.out.println("Client connected on port: " + port);
+		} catch(FileNotFoundException fnfe) {
+			System.out.println("client fnfe: " + fnfe.getMessage());
 		} catch(IOException ioe) {
 			System.out.println("client on port " + port + " ioe: " + ioe.getMessage());
-		}
-		scan.close();
+		} 
 	}
 	
 	/**
@@ -64,6 +66,14 @@ public class Client implements ClientInterface {
 			return handle;
 		} catch(IOException ioe) {
 			return null;
+		}
+	}
+	
+	public void close() {
+		try {
+			this.sock.close();
+		} catch(IOException ioe) {
+			System.out.println("client close ioe: " + ioe.getMessage());
 		}
 	}
 	
@@ -105,6 +115,7 @@ public class Client implements ClientInterface {
 	 * Read a chunk at the chunk server from the client side.
 	 */
 	public byte[] getChunk(String ChunkHandle, int offset, int NumberOfBytes) {
+		System.out.println("client getChunk()");
 		if(NumberOfBytes + offset > ChunkServer.ChunkSize){
 			System.out.println("The chunk read should be within the range of the file, invalide chunk read!");
 			return null;
@@ -123,6 +134,7 @@ public class Client implements ClientInterface {
 			ostream.flush();
 			
 			int size = istream.readInt();
+			System.out.println("size from server: " + size);
 			byte[] data = ChunkServer.readBytes(this.istream, size);
 			return data;
 		} catch (IOException ioe) {

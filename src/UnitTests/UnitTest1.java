@@ -47,6 +47,7 @@ public class UnitTest1 {
         }else{
         	System.out.println("Unit test 1 result: fail!");
         }
+        //client.close();
 	}
 
 }
