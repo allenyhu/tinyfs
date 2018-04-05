@@ -20,7 +20,7 @@ import com.interfaces.ChunkServerInterface;
  */
 
 public class ChunkServer implements ChunkServerInterface {
-	final static String filePath = "csci485/";	//or C:\\newfile.txt
+	final static String filePath = "csci485files/";	//or C:\\newfile.txt
 	public static long counter;
 	public static int INIT = 0;
 	public static int PUT = 1;
@@ -53,14 +53,13 @@ public class ChunkServer implements ChunkServerInterface {
 		while(ss == null) {
 			try {
 				ss = new ServerSocket(port);
+				System.out.println("ServerSocket Established");
 				BufferedWriter bw = new BufferedWriter(new FileWriter("port.txt"));
 				bw.write(new Integer(port).toString());
 				bw.flush();
-				System.out.println("Chunkserver opened on port: " + ss.getLocalPort());
 			} catch(IOException ioe) {
 				System.out.println("server socket ioe: " + ioe.getMessage());
 				port++;
-				//System.out.println("trying on port: " + port);
 			} 
 		}
 		while(true) {
@@ -72,36 +71,32 @@ public class ChunkServer implements ChunkServerInterface {
 					
 				while(true) {
 					int command = istream.readInt();
-					System.out.println("command: " + command);
 					if(command == ChunkServer.INIT) {
-						System.out.println("got init message");
 						String handle = this.initializeChunk();
-						System.out.println("handle to be sent: " + handle);
 						byte[] handleBytes = handle.getBytes();
 						this.ostream.writeInt(handleBytes.length);
 						this.ostream.write(handleBytes);
 						this.ostream.flush();
 					}
 					else if(command == ChunkServer.PUT) {
-						System.out.println("got put message");
-						
+						//command
+						//offset
+						//payload size
+						//payload
+						//handle size
+						//handle
 						int offset = istream.readInt();
 						int payloadSize = istream.readInt();
 						byte[] payload = this.readBytes(this.istream, payloadSize);
-						System.out.println("read payload");
 						int handleSize = istream.readInt();
-						System.out.println("read handlesize");
 						byte[] handleBytes = this.readBytes(this.istream, handleSize);
-						System.out.println("read handle");
 						String handle = new String(handleBytes);
 	
 						boolean put = this.putChunk(handle, payload, offset);
-						System.out.println("got boolean server");
 						this.ostream.writeBoolean(put);
 						this.ostream.flush();
 					}
 					else if(command == ChunkServer.GET) {
-						System.out.println("got get message");
 						//offset
 						//num bytes
 						//handle size
@@ -125,8 +120,10 @@ public class ChunkServer implements ChunkServerInterface {
 		}
 	}
 	
+	/*
+	 * Reads in a specified number of bytes from the give ObjectInputStream
+	 */
 	public static byte[] readBytes(ObjectInputStream ois, int size) {
-		System.out.println("Server payload size: " + size);
 		byte[] data = new byte[size];
 		int count = 0;
 		try {
@@ -137,7 +134,6 @@ public class ChunkServer implements ChunkServerInterface {
 			System.out.println("readBytes ioe: " + ioe.getMessage());
 			return null;
 		}
-		System.out.println("count: " + count);
 		return data;
 	}
 	
@@ -147,7 +143,6 @@ public class ChunkServer implements ChunkServerInterface {
 	 */
 	public String initializeChunk() {
 		counter++;
-		//send this across the connection
 		return String.valueOf(counter);
 	}
 	
@@ -157,7 +152,6 @@ public class ChunkServer implements ChunkServerInterface {
 	 */
 	public boolean putChunk(String ChunkHandle, byte[] payload, int offset) {
 		try {
-			System.out.println("server putChunk");
 			//If the file corresponding to ChunkHandle does not exist then create it before writing into it
 			RandomAccessFile raf = new RandomAccessFile(filePath + ChunkHandle, "rw");
 			raf.seek(offset);
@@ -174,7 +168,6 @@ public class ChunkServer implements ChunkServerInterface {
 	 * read the chunk at the specific offset
 	 */
 	public byte[] getChunk(String ChunkHandle, int offset, int NumberOfBytes) {
-		System.out.println("server getChunk");
 		try {
 			//If the file for the chunk does not exist the return null
 			boolean exists = (new File(filePath + ChunkHandle)).exists();

@@ -28,14 +28,11 @@ public class Client implements ClientInterface {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader("port.txt"));
 			port = Integer.parseInt(br.readLine());
-			System.out.println("port read in: " + port);
 			if(this.sock == null) {
 				this.sock = new Socket("localhost", port);
 				this.ostream = new ObjectOutputStream(sock.getOutputStream());
 				this.istream = new ObjectInputStream(sock.getInputStream());
 			}
-			
-			System.out.println("Client connected on port: " + port);
 		} catch(FileNotFoundException fnfe) {
 			System.out.println("client fnfe: " + fnfe.getMessage());
 		} catch(IOException ioe) {
@@ -47,33 +44,16 @@ public class Client implements ClientInterface {
 	 * Create a chunk at the chunk server from the client side.
 	 */
 	public String initializeChunk() {
-		//read port number from file
-		System.out.println("client initchunk");
 		try {
 			ostream.writeInt(ChunkServer.INIT);
 			ostream.flush(); //sends init command
-			System.out.println("client flushed");
 			
 			int size = istream.readInt();
-			byte[] data = new byte[size];
-			int count = 0;
-			do {
-				count += istream.read(data, count, size-count);
-			} while(count != size);
-			//byte[] data = ChunkServer.readBytes(istream, size);
+			byte[] data = ChunkServer.readBytes(istream, size);
 			String handle = new String(data);
-			System.out.println("handle from server: " + handle);
 			return handle;
 		} catch(IOException ioe) {
 			return null;
-		}
-	}
-	
-	public void close() {
-		try {
-			this.sock.close();
-		} catch(IOException ioe) {
-			System.out.println("client close ioe: " + ioe.getMessage());
 		}
 	}
 	
@@ -95,14 +75,12 @@ public class Client implements ClientInterface {
 			ostream.writeInt(ChunkServer.PUT);
 			ostream.writeInt(offset);
 			ostream.writeInt(payload.length);
-			System.out.println("payload size client: " + payload.length);
 			ostream.write(payload);
 			ostream.writeInt(ChunkHandle.getBytes().length);
 			ostream.write(ChunkHandle.getBytes());
 			ostream.flush();
 			
 			boolean success = istream.readBoolean();
-			System.out.println("client read boolean");
 			return success;
 		} catch (IOException ioe) {
 			System.out.println("Client putChunk ioe: " + ioe.getMessage());
@@ -115,7 +93,6 @@ public class Client implements ClientInterface {
 	 * Read a chunk at the chunk server from the client side.
 	 */
 	public byte[] getChunk(String ChunkHandle, int offset, int NumberOfBytes) {
-		System.out.println("client getChunk()");
 		if(NumberOfBytes + offset > ChunkServer.ChunkSize){
 			System.out.println("The chunk read should be within the range of the file, invalide chunk read!");
 			return null;
@@ -134,7 +111,6 @@ public class Client implements ClientInterface {
 			ostream.flush();
 			
 			int size = istream.readInt();
-			System.out.println("size from server: " + size);
 			byte[] data = ChunkServer.readBytes(this.istream, size);
 			return data;
 		} catch (IOException ioe) {
