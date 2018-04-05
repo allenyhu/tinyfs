@@ -98,6 +98,17 @@ public class ChunkServer implements ChunkServerInterface {
 						ostream.writeBoolean(put);
 						ostream.flush();
 					}
+					else if(command == ChunkServer.GET {
+						System.out.println("got get message");
+						//offset
+						//num bytes
+						//handle size
+						//handle
+						int offset = istream.readInt();
+						int length = istream.readInt();
+						int handleSize = istream.readInt();
+						byte[] handleBytes = this.readBytes(this.istream, handleSize);
+					}
 				}
 			} catch(IOException ioe) {
 				System.out.println("server accept ioe: " + ioe.getMessage());

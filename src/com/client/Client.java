@@ -109,7 +109,25 @@ public class Client implements ClientInterface {
 			System.out.println("The chunk read should be within the range of the file, invalide chunk read!");
 			return null;
 		}
-		//return cs.getChunk(ChunkHandle, offset, NumberOfBytes);
+		//command
+		//offset
+		//num bytes
+		//handle size
+		//handle
+		try {
+			ostream.writeInt(ChunkServer.GET);
+			ostream.writeInt(offset);
+			ostream.writeInt(NumberOfBytes);
+			ostream.writeInt(ChunkHandle.getBytes().length);
+			ostream.write(ChunkHandle.getBytes());
+			ostream.flush();
+			
+			int size = istream.readInt();
+			byte[] data = ChunkServer.readBytes(this.istream, size);
+			return data;
+		} catch (IOException ioe) {
+			System.out.println("Client getChunk ioe: " + ioe.getMessage());
+		}
 		return null;
 	}
 
